@@ -40,13 +40,24 @@
     const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function artikelLaden() {
-      const { data } = await supabaseClient
+      const { data, error } = await supabaseClient
         .from('artikel')
         .select('*')
         .order('created_at', { ascending: false });
 
       const liste = document.getElementById('liste');
       liste.innerHTML = '';
+
+      if (error) {
+        alert('Fehler beim Laden: ' + error.message);
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        liste.innerHTML = '<tr><td colspan="3">Keine Artikel vorhanden</td></tr>';
+        return;
+      }
+
       data.forEach(a => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
