@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lager App</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 40px; }
+    input, button { padding: 10px; margin: 5px; font-size: 16px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 12px; text-align: left; }
+    th { background-color: #f0f0f0; }
+  </style>
+</head>
+<body>
+  <h1>Lager App</h1>
+
+  <h2>Neuen Artikel anlegen</h2>
+  <input type="text" id="name" placeholder="Artikelname">
+  <input type="number" id="menge" placeholder="Menge" value="0">
+  <button onclick="artikelAnlegen()">Anlegen</button>
+
+  <h2>Lagerbestand</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Menge</th>
+        <th>Erstellt am</th>
+      </tr>
+    </thead>
+    <tbody id="liste"></tbody>
+  </table>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const supabaseUrl = 'https://ukjprpgwfnljwfonknwh.supabase.co';
+    const supabaseKey = 'sb_publishable_pxClfxMRPajtFUvHYWSInQ_m4EmJxlb';
+
+    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+    async function artikelLaden() {
+      const { data } = await supabase
+        .from('artikel')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      const liste = document.getElementById('liste');
+      liste.innerHTML = '';
+      data.forEach(a => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${a.name}</td>
+          <td>${a.menge}</td>
+          <td>${new Date(a.created_at).toLocaleString()}</td>
+        `;
+        liste.appendChild(tr);
+      });
+    }
+
+    async function artikelAnlegen() {
+      const name = document.getElementById('name').value.trim();
+      const menge = parseInt(document.getElementById('menge').value);
+
+      if (!name || isNaN(menge) || menge < 0) {
+        alert('Bitte gültigen Namen und Menge eingeben');
+        return;
+      }
+
+      const { error } = await supabase
+        .from('artikel')
+        .insert({ name, menge });
+
+      if (error) {
+        alert('Fehler: ' + error.message);
+        return;
+      }
+
+      document.getElementById('name').value = '';
+      document.getElementById('menge').value = '0';
+      artikelLaden();
+    }
+
+    // Beim Öffnen laden
+    artikelLaden();
+  </script>
+</body>
+</html>
