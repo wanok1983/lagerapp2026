@@ -37,10 +37,10 @@
     const supabaseUrl = 'https://ukjprpgwfnljwfonknwh.supabase.co';
     const supabaseKey = 'sb_publishable_pxClfxMRPajtFUvHYWSInQ_m4EmJxlb';
 
-    const supabase = supabase.createClient(supabaseUrl, supabaseKey);
+    const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
     async function artikelLaden() {
-      const { data } = await supabase
+      const { data } = await supabaseClient
         .from('artikel')
         .select('*')
         .order('created_at', { ascending: false });
@@ -67,7 +67,7 @@
         return;
       }
 
-      const { error } = await supabase
+      const { error } = await supabaseClient
         .from('artikel')
         .insert({ name, menge });
 
@@ -81,7 +81,6 @@
       artikelLaden();
     }
 
-    // Beim Öffnen laden
     artikelLaden();
   </script>
 </body>
